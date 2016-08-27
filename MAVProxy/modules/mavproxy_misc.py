@@ -125,6 +125,7 @@ class MiscModule(mp_module.MPModule):
 
     def cmd_reboot(self, args):
         '''reboot autopilot'''
+        print "rebooting sys: %s, comp: %s" % (self.master.target_system, self.master.target_component)
         self.master.reboot_autopilot()
 
     def cmd_time(self, args):

@@ -16,6 +16,7 @@ class DGPSModule(mp_module.MPModule):
         self.port.bind(("127.0.0.1", self.portnum))
         mavutil.set_close_on_exec(self.port.fileno())
         self.port.setblocking(0)
+        print "Target system: %s, Target component: %s" % (self.target_system, self.target_component)
         print "Listening for DGPS packets on UDP://%s:%s" % ("127.0.0.1", self.portnum)
 
     def idle_task(self):
@@ -30,7 +31,6 @@ class DGPSModule(mp_module.MPModule):
             print("DGPS data too large: %u bytes" % len(data))
             return
         try:
-
             self.master.mav.gps_inject_data_send(
                 self.target_system,
                 self.target_component,

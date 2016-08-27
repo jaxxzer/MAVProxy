@@ -55,6 +55,7 @@ class ParamState:
             if master is None:
                 return
             if len(self.mav_param_set) == 0:
+                print "param fetch: %s, comp: %s" % (master.target_system, master.target_component)
                 master.param_fetch_all()
             elif self.mav_param_count != 0 and len(self.mav_param_set) != self.mav_param_count:
                 if master.time_since('PARAM_VALUE') >= 1 or force:

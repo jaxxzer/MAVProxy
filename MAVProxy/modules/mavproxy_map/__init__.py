@@ -366,7 +366,7 @@ class MapModule(mp_module.MPModule):
         self.have_vehicle[name] = vehicle_type
         icon = self.mpstate.map.icon(colour + vehicle_type + '.png')
         self.mpstate.map.add_object(mp_slipmap.SlipIcon(name, (0,0), icon, layer=3, rotation=0, follow=follow,
-                                                   trail=mp_slipmap.SlipTrail()))
+                                                   trail=mp_slipmap.SlipTrail(), dest=mp_slipmap.SlipDest()))
 
     def drawing_update(self):
         '''update line drawing'''
@@ -485,6 +485,11 @@ class MapModule(mp_module.MPModule):
                                                                    linewidth=2, colour=(255,0,180)))
             else:
                 self.mpstate.map.add_object(mp_slipmap.SlipClearLayer('Trajectory'))
+                
+        if m.get_type() == "COMMAND_LONG":
+            if m.command == 47:
+                targetpos = mp_util.gps_newpos(self.lat, self.lon, m.param1/100, m.param2/100)
+            	self.mpstate.map.set_target('Pos' + vehicle, targetpos)
 
         # if the waypoints have changed, redisplay
         last_wp_change = self.module('wp').wploader.last_change

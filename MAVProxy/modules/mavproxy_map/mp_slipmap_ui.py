@@ -157,6 +157,12 @@ class MPSlipMapFrame(wx.Frame):
                     if getattr(object, 'follow', False):
                         self.follow(object)
                     state.need_redraw = True
+                    
+            if isinstance(obj, SlipTarget):
+                object = self.find_object(obj.key, obj.layer)
+                if object is not None:
+                    object.update_dest(obj)
+                    state.need_redraw = True
 
             if isinstance(obj, SlipDefaultPopup):
                 state.default_popup = obj

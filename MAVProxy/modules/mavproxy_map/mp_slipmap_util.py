@@ -61,9 +61,9 @@ class SlipObject:
         if hasattr(self, 'rotation'):
             self.rotation = newpos.rotation
             
-    def update_dest(self, newpos):
+    def update_dest(self, dest):
         if getattr(self, 'dest', None) is not None:
-            self.dest.update_destination(newpos)
+            self.dest.update_destination(dest.targetpos, dest.currenttrack, dest.desiredtrack)
 
     def clicked(self, px, py):
         '''check if a click on px,py should be considered a click
@@ -341,24 +341,34 @@ class SlipTrail:
 
 class SlipDest:
     '''Current target position'''
-    def __init__(self, timestep=1, colour=(255,0,0), latlon=(0,0)):
+    def __init__(self, timestep=1, colour=(255,0,0), targetpos=(0,0), currenttrack=(0,0), desiredtrack=(0,0)):
         self.timestep = timestep
         self.colour = colour
-        self.latlon = latlon
+        self.targetpos = targetpos
+        self.currenttrack = currenttrack
+        self.desiredtrack = desiredtrack
         self.last_time = time.time()
         
-    def update_destination(self, newpos):
+    def update_destination(self, targetpos, currenttrack, desiredtrack):
         '''update target'''
         tnow = time.time()
         if tnow >= self.last_time + self.timestep:
             self.last_time = tnow
-            self.latlon = newpos.latlon
+            self.targetpos = targetpos
+            self.currenttrack = currenttrack
+            self.desiredtrack = desiredtrack
             
     def draw(self, img, pixmapper, bounds):
         '''draw the destination'''
-        (px,py) = pixmapper(self.latlon)
+        (px,py) = pixmapper(self.targetpos)
         if px >= 0 and py >= 0 and px < img.width and py < img.height:
             cv.Circle(img, (px,py), 10, self.colour)
+        (px,py) = pixmapper(self.currenttrack)
+        if px >= 0 and py >= 0 and px < img.width and py < img.height:
+            cv.Circle(img, (px,py), 10, (0,255,0))
+        (px,py) = pixmapper(self.desiredtrack)
+        if px >= 0 and py >= 0 and px < img.width and py < img.height:
+            cv.Circle(img, (px,py), 10, (0,0,255))
 
 class SlipIcon(SlipThumbnail):
     '''a icon to display on the map'''
@@ -428,10 +438,12 @@ class SlipPosition:
         self.rotation = rotation
         
 class SlipTarget:
-    def __init__(self, key, latlon, layer=None):
+    def __init__(self, key, targetpos, currenttrack, desiredtrack, layer=None):
         self.key = key
         self.layer = layer
-        self.latlon = latlon
+        self.targetpos = targetpos
+        self.currenttrack = currenttrack
+        self.desiredtrack = desiredtrack
 
 class SlipCenter:
     '''an object to move the view center'''

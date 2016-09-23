@@ -21,6 +21,10 @@ class MapModule(mp_module.MPModule):
         self.lat = None
         self.lon = None
         self.heading = 0
+        self.spoofpos = None
+        self.last_spoof_time = 0
+        self.spoof_interval = 0.2
+        self.timeoffset = time.time()
         self.wp_change_time = 0
         self.fence_change_time = 0
         self.rally_change_time = 0
@@ -69,6 +73,8 @@ class MapModule(mp_module.MPModule):
         self.add_menu(MPMenuItem('Set Home', 'Set Home', '# map sethome '))
         self.add_menu(MPMenuItem('Terrain Check', 'Terrain Check', '# terrain check'))
         self.add_menu(MPMenuItem('Show Position', 'Show Position', 'showPosition'))
+        self.add_menu(MPMenuItem('Spoof GPS', 'Spoof GPS', 'spoofGPS'))
+        self.add_menu(MPMenuCheckbox('Show Landing Zone', 'Show Landing Zone', 'showLandingZone'))
 
         self._colour_for_wp_command = {
             # takeoff commands
@@ -116,6 +122,36 @@ class MapModule(mp_module.MPModule):
             logf.close()
         posbox = MPMenuChildMessageDialog('Position', msg, font_size=32)
         posbox.show()
+        
+    def spoof_gps(self):
+    	pos = self.click_position
+    	lat = pos[0]
+    	lon = pos[1]
+    	self.spoofpos = (lat, lon)  	
+    	
+    def cmd_gps_spoof(self, pos):
+        '''https://pixhawk.ethz.ch/mavlink/#GPS_INPUT'''
+        self.master.mav.gps_input_send(
+        self.master.highest_msec*1e3,                 # epoch microseconds (NOT USED)
+        0,                                            # GPS id
+        (1+8+16+32+64+128),                           # ignore flags
+        (time.time() - self.timeoffset)*1e3,          # uint32 time_week_ms
+        1912,                                         # uint16 time_week, week number
+        3,                                            # uint8 fix type 3=3d fix
+        pos[0] * 1e7,                                 # uint32 lat
+        pos[1] * 1e7,                                 # uint32 lon
+        0,                                            # float alt
+        1.0,                                          # float hdop
+        1.0,                                          # float vdop
+        0,                                            # float vn
+        0,                                            # float ve
+        0,                                            # float vd
+        0,                                            # float speed_accuracy
+        0,                                            # float horiz_accuracy
+        0,                                            # float vert_accuracy
+        6)                                            # uint8 sattellites_visible
+        
+    	
 
     def cmd_map(self, args):
         '''map commands'''
@@ -307,6 +343,8 @@ class MapModule(mp_module.MPModule):
             self.move_fencepoint(obj.selected[0].objkey, obj.selected[0].extra_info)
         elif menuitem.returnkey == 'showPosition':
             self.show_position()
+        elif menuitem.returnkey == 'spoofGPS':
+            self.spoof_gps()
 
 
     def map_callback(self, obj):
@@ -377,6 +415,10 @@ class MapModule(mp_module.MPModule):
             self.last_unload_check_time = now
             if not self.mpstate.map.is_alive():
                 self.needs_unloading = True
+        if self.spoofpos is not None:
+            if now > self.last_spoof_time + self.spoof_interval:
+                self.last_spoof_time = now
+                self.cmd_gps_spoof(self.spoofpos)
 
     def create_vehicle_icon(self, name, colour, follow=False, vehicle_type=None):
         '''add a vehicle to the map'''

@@ -60,6 +60,10 @@ class SlipObject:
         self.latlon = newpos.latlon
         if hasattr(self, 'rotation'):
             self.rotation = newpos.rotation
+            
+    def update_dest(self, newpos):
+        if getattr(self, 'dest', None) is not None:
+            self.dest.update_destination(newpos)
 
     def clicked(self, px, py):
         '''check if a click on px,py should be considered a click
@@ -335,15 +339,36 @@ class SlipTrail:
             if px >= 0 and py >= 0 and px < img.width and py < img.height:
                 cv.Circle(img, (px,py), 1, self.colour)
 
+class SlipDest:
+    '''Current target position'''
+    def __init__(self, timestep=1, colour=(255,0,0), latlon=(0,0)):
+        self.timestep = timestep
+        self.colour = colour
+        self.latlon = latlon
+        self.last_time = time.time()
+        
+    def update_destination(self, newpos):
+        '''update target'''
+        tnow = time.time()
+        if tnow >= self.last_time + self.timestep:
+            self.last_time = tnow
+            self.latlon = newpos.latlon
+            
+    def draw(self, img, pixmapper, bounds):
+        '''draw the destination'''
+        (px,py) = pixmapper(self.latlon)
+        if px >= 0 and py >= 0 and px < img.width and py < img.height:
+            cv.Circle(img, (px,py), 10, self.colour)
 
 class SlipIcon(SlipThumbnail):
     '''a icon to display on the map'''
     def __init__(self, key, latlon, img, layer=1, rotation=0,
-                 follow=False, trail=None, popup_menu=None):
+                 follow=False, trail=None, dest=None, popup_menu=None):
         SlipThumbnail.__init__(self, key, latlon, layer, img, popup_menu=popup_menu)
         self.rotation = rotation
         self.follow = follow
         self.trail = trail
+        self.dest = dest
 
     def img(self):
         '''return a cv image for the icon'''
@@ -368,6 +393,9 @@ class SlipIcon(SlipThumbnail):
 
         if self.trail is not None:
             self.trail.draw(img, pixmapper, bounds)
+            
+        if self.dest is not None:
+            self.dest.draw(img, pixmapper, bounds)
 
         icon = self.img()
         (px,py) = pixmapper(self.latlon)
@@ -398,6 +426,12 @@ class SlipPosition:
         self.layer = layer
         self.latlon = latlon
         self.rotation = rotation
+        
+class SlipTarget:
+    def __init__(self, key, latlon, layer=None):
+        self.key = key
+        self.layer = layer
+        self.latlon = latlon
 
 class SlipCenter:
     '''an object to move the view center'''

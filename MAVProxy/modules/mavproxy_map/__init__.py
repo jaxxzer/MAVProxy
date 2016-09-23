@@ -521,7 +521,9 @@ class MapModule(mp_module.MPModule):
         if m.get_type() == "COMMAND_LONG":
             if m.command == 47:
                 targetpos = mp_util.gps_newpos(self.lat, self.lon, m.param1/100, m.param2/100)
-            	self.mpstate.map.set_target('Pos' + vehicle, targetpos)
+                currenttrack = mp_util.gps_newpos(self.lat, self.lon, m.param3/100, m.param4/100)
+                desiredtrack = mp_util.gps_newpos(self.lat, self.lon, m.param5/100, m.param6/100)
+            	self.mpstate.map.set_target('Pos' + vehicle, targetpos, currenttrack, desiredtrack)
 
         # if the waypoints have changed, redisplay
         last_wp_change = self.module('wp').wploader.last_change

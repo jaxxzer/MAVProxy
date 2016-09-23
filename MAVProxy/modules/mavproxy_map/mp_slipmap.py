@@ -127,9 +127,9 @@ class MPSlipMap():
         '''move an object on the map'''
         self.object_queue.put(SlipPosition(key, latlon, layer, rotation))
 
-    def set_target(self, key, latlon, layer=None):
+    def set_target(self, key, targetpos, currenttrack, desiredtrack, layer=None):
         '''move an object on the map'''
-        self.object_queue.put(SlipTarget(key, latlon, layer))
+        self.object_queue.put(SlipTarget(key, targetpos, currenttrack, desiredtrack, layer))
         
     def event_count(self):
         '''return number of events waiting to be processed'''

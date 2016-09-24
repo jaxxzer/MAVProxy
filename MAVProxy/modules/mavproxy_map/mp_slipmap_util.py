@@ -362,13 +362,13 @@ class SlipDest:
         '''draw the destination'''
         (px,py) = pixmapper(self.targetpos)
         if px >= 0 and py >= 0 and px < img.width and py < img.height:
-            cv.Circle(img, (px,py), 10, self.colour)
+            cv.Circle(img, (px,py), 5, self.colour)
         (px,py) = pixmapper(self.currenttrack)
         if px >= 0 and py >= 0 and px < img.width and py < img.height:
-            cv.Circle(img, (px,py), 10, (0,255,0))
+            cv.Circle(img, (px,py), 8, (0,255,0))
         (px,py) = pixmapper(self.desiredtrack)
         if px >= 0 and py >= 0 and px < img.width and py < img.height:
-            cv.Circle(img, (px,py), 10, (0,0,255))
+            cv.Circle(img, (px,py), 12, (0,0,255))
 
 class SlipIcon(SlipThumbnail):
     '''a icon to display on the map'''

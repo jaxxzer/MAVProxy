@@ -330,6 +330,14 @@ class MapModule(mp_module.MPModule):
         if isinstance(obj, mp_slipmap.SlipMenuEvent):
             self.handle_menu_event(obj)
             return
+            
+        if isinstance(obj, mp_slipmap.SlipKeyEvent):
+            print obj.event.m_keyCode
+            print ord('f')
+            if obj.event.m_keyCode == 70:
+                print obj.latlon
+                self.spoofpos = obj.latlon
+        
         if not isinstance(obj, mp_slipmap.SlipMouseEvent):
             return
         if obj.event.m_leftDown and self.moving_rally is not None:

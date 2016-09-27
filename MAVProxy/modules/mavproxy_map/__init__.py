@@ -332,10 +332,7 @@ class MapModule(mp_module.MPModule):
             return
             
         if isinstance(obj, mp_slipmap.SlipKeyEvent):
-            print obj.event.m_keyCode
-            print ord('f')
             if obj.event.m_keyCode == 70:
-                print obj.latlon
                 self.spoofpos = obj.latlon
         
         if not isinstance(obj, mp_slipmap.SlipMouseEvent):

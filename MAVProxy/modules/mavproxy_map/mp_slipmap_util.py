@@ -341,7 +341,7 @@ class SlipTrail:
 
 class SlipDest:
     '''Current target position'''
-    def __init__(self, timestep=1, colour=(255,0,0), targetpos=(0,0), currenttrack=(0,0), desiredtrack=(0,0)):
+    def __init__(self, timestep=0.1, colour=(255,0,0), targetpos=(0,0), currenttrack=(0,0), desiredtrack=(0,0)):
         self.timestep = timestep
         self.colour = colour
         self.targetpos = targetpos

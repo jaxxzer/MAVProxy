@@ -132,7 +132,7 @@ class ArmModule(mp_module.MPModule):
 
     def mavlink_packet(self, m):
         mtype = m.get_type()
-        if mtype == 'HEARTBEAT' and m.type != mavutil.mavlink.MAV_TYPE_GCS:
+        if mtype == 'HEARTBEAT' and m.type != mavutil.mavlink.MAV_TYPE_GCS and m.type != mavutil.mavlink.MAV_TYPE_MONITOR:
             armed = self.master.motors_armed()
             if armed != self.was_armed:
                 self.was_armed = armed

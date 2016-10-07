@@ -28,8 +28,8 @@ class MPSlipMap():
     '''
     def __init__(self,
                  title='SlipMap',
-                 lat=-35.362938,
-                 lon=149.165085,
+                 lat=26.0990259,
+                 lon=-80.1016640,
                  width=800,
                  height=600,
                  ground_width=1000,

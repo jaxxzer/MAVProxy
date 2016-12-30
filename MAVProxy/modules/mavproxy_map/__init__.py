@@ -149,7 +149,7 @@ class MapModule(mp_module.MPModule):
         0,                                            # float speed_accuracy
         0,                                            # float horiz_accuracy
         0,                                            # float vert_accuracy
-        6)                                            # uint8 sattellites_visible
+        5)                                            # uint8 sattellites_visible
         
     	
 

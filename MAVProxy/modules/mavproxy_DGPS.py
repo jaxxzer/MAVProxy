@@ -22,7 +22,7 @@ class DGPSModule(mp_module.MPModule):
     def idle_task(self):
         '''called in idle time'''
         try:
-            data = self.port.recv(200)
+            data = self.port.recv(110)
         except socket.error as e:
             if e.errno in [ errno.EAGAIN, errno.EWOULDBLOCK ]:
                 return

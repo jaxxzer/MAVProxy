@@ -698,6 +698,7 @@ def send_heartbeat(master):
     if master.mavlink10():
         master.mav.heartbeat_send(mavutil.mavlink.MAV_TYPE_GCS, mavutil.mavlink.MAV_AUTOPILOT_INVALID,
                                   0, 0, 0)
+        master.mav.system_time_send(time.time() * 1e6, 0)
     else:
         MAV_GROUND = 5
         MAV_AUTOPILOT_NONE = 4

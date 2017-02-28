@@ -10,14 +10,24 @@ from MAVProxy.modules.lib import mp_module
 class DGPSModule(mp_module.MPModule):
     def __init__(self, mpstate):
         super(DGPSModule, self).__init__(mpstate, "DGPS", "DGPS injection support")
-        self.portnum = 13320
+        self.portnum = 13321
         self.port = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.port.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.port.bind(("127.0.0.1", self.portnum))
+        #self.port.bind(("127.0.0.1", self.portnum))
         mavutil.set_close_on_exec(self.port.fileno())
         self.port.setblocking(0)
+        self.destination_addr = ("127.0.0.1", self.portnum)
         print "Listening for DGPS packets on UDP://%s:%s" % ("127.0.0.1", self.portnum)
+        print "hello"
 
+
+    def mavlink_packet(self, m):
+        '''handle an incoming mavlink packet'''
+        if m.get_type() == 'SCALED_PRESSURE2':
+            buf = '%0.2f\n' % m.press_abs
+            self.port.connect(self.destination_addr)
+            self.port.sendto(buf, self.destination_addr)
+            
     def idle_task(self):
         '''called in idle time'''
         try:

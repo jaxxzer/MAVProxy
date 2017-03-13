@@ -58,7 +58,7 @@ class GPSInputModule(mp_module.MPModule):
     def idle_task(self):
         '''called in idle time'''
         
-        if(time.time() > self.last_message_ms + 0.2):
+        if(time.time() > self.last_message_ms + 1):
             try:
                 self.last_message_ms = time.time()
                 self.master.mav.gps_input_send(

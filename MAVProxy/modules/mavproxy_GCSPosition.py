@@ -15,7 +15,7 @@ class GCSPositionModule(mp_module.MPModule):
 
     def __init__(self, mpstate):
         super(GCSPositionModule, self).__init__(mpstate, "GCSPosition", "Positioning information for GCS (moving GCS)")
-        self.add_command('GCSPosition.port', self.cmd_port, 'Port selection', ['<25000|25050|25100>'])
+        self.add_command('GCSPosition.port', self.cmd_port, 'Port selection', ['<25101>'])
         self.gcs = mavutil.mavlink_connection('udpout:0.0.0.0:14550', source_system=2)
         self.last_heartbeat = 0
         self.data = {
@@ -38,13 +38,15 @@ class GCSPositionModule(mp_module.MPModule):
             'pitchspeed' : 0,   # Pitch angular speed (rad/s) (float)
             'yawspeed' : 0      # Yaw angular speed (rad/s) (float)
         }
-        self.portnum = 25000
+        
+        self.ip=""
+        self.portnum = 25101
         self.port = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.port.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.port.bind(("127.0.0.1", self.portnum))
+        self.port.bind((self.ip, self.portnum))
         self.port.setblocking(0)
         mavutil.set_close_on_exec(self.port.fileno())
-        print "Listening for GCS position packets on UDP://%s:%s" % ("127.0.0.1", self.portnum)
+        print "Listening for GCS position packets on UDP://%s:%s" % (self.ip, self.portnum)
 
     def heartbeat(self):
         if time.time() < self.last_heartbeat + 1:
@@ -79,8 +81,8 @@ class GCSPositionModule(mp_module.MPModule):
             self.gcs.mav.gps_raw_int_send(
                 self.data['time_usec'],
                 self.data['fix_type'],
-                self.data['lat'],
-                self.data['lon'],
+                self.data['lat']*1E7,
+                self.data['lon']*1E7,
                 self.data['alt'],
                 self.data['eph'],
                 self.data['epv'],
@@ -112,10 +114,10 @@ class GCSPositionModule(mp_module.MPModule):
         self.portnum = int(args[0])
         self.port = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.port.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.port.bind(("127.0.0.1", self.portnum))
+        self.port.bind((self.ip, self.portnum))
         self.port.setblocking(0)
         mavutil.set_close_on_exec(self.port.fileno())
-        print "Listening for GCS position packets on UDP://%s:%s" % ("127.0.0.1", self.portnum)
+        print "Listening for GCS position packets on UDP://%s:%s" % (self.ip, self.portnum)
 
 def init(mpstate):
     '''initialise module'''

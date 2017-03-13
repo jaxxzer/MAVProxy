@@ -15,7 +15,7 @@ class DepthOutputModule(mp_module.MPModule):
 
     def __init__(self, mpstate):
         super(DepthOutputModule, self).__init__(mpstate, "DepthOutput", "Depth output support")
-        self.add_command('DepthOutput.port', self.cmd_port, 'Port selection', ['<25400|25450|25500>'])
+        self.add_command('DepthOutput.port', self.cmd_port, 'Port selection', ['<25102>'])
         self.add_command('DepthOutput.depthSource', self.cmd_depth_source, 'Depth source selection', ['<bar30|filtered>'])
         self.add_command('DepthOutput.tempSource', self.cmd_temp_source, 'Temperature source selection', ['<sp2|sp3>'])
         
@@ -27,13 +27,15 @@ class DepthOutputModule(mp_module.MPModule):
             'depth' : 0, # Depth in meters
             'temp' : 0   # Water temperature in degrees Celsius
         }
-        self.portnum = 25400
+        
+        self.ip="192.168.2.3"
+        self.portnum = 25102
         self.port = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.port.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        #self.port.bind(("127.0.0.1", self.portnum))
+        #self.port.bind((self.ip, self.portnum))
         #self.port.setblocking(0)
         mavutil.set_close_on_exec(self.port.fileno())
-        print "Outputting depth on UDP://%s:%s" % ("127.0.0.1", self.portnum)
+        print "Outputting depth on UDP://%s:%s" % (self.ip, self.portnum)
 
     'Handle mavlink packets, get data'
     def mavlink_packet(self, m):
@@ -54,7 +56,7 @@ class DepthOutputModule(mp_module.MPModule):
             return
         self.last_update = time.time()
         datagram = json.dumps(self.data)
-        self.port.sendto(datagram, ('127.0.0.1', self.portnum))
+        self.port.sendto(datagram, (self.ip, self.portnum))
 
     def idle_task(self):
         '''called in idle time'''
@@ -70,10 +72,10 @@ class DepthOutputModule(mp_module.MPModule):
         self.portnum = int(args[0])
         self.port = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.port.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        #self.port.bind(("127.0.0.1", self.portnum))
+        #self.port.bind((self.ip, self.portnum))
         #self.port.setblocking(0)
         mavutil.set_close_on_exec(self.port.fileno())
-        print "Outputting depth on UDP://%s:%s" % ("127.0.0.1", self.portnum)
+        print "Outputting depth on UDP://%s:%s" % (self.ip, self.portnum)
         
     def cmd_temp_source(self, args):
         'handle temperature source selection'

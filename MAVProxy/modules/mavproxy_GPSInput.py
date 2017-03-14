@@ -58,31 +58,7 @@ class GPSInputModule(mp_module.MPModule):
     def idle_task(self):
         '''called in idle time'''
         
-        if(time.time() > self.last_message_ms + 1):
-            try:
-                self.last_message_ms = time.time()
-                self.master.mav.gps_input_send(
-                    self.data['time_usec'],
-                    self.data['gps_id'],
-                    self.data['ignore_flags'],
-                    self.data['time_week_ms'],
-                    self.data['time_week'],
-                    self.data['fix_type'],
-                    self.data['lat']*1E7,
-                    self.data['lon']*1E7,
-                    self.data['alt'],
-                    self.data['hdop'],
-                    self.data['vdop'],
-                    self.data['vn'],
-                    self.data['ve'],
-                    self.data['vd'],
-                    self.data['speed_accuracy'],
-                    self.data['horiz_accuracy'],
-                    self.data['vert_accuracy'],
-                    self.data['satellites_visible'])
-            
-            except Exception,e:
-                print "GPS Input Failed:", e
+        
         
         try:
             datagram = self.port.recvfrom(self.BUFFER_SIZE)
@@ -96,6 +72,33 @@ class GPSInputModule(mp_module.MPModule):
         for key in data.keys():
             self.data[key] = data[key]
         
+        print "sending gps..."
+        
+        try:
+            self.last_message_ms = time.time()
+            self.master.mav.gps_input_send(
+                self.data['time_usec'],
+                self.data['gps_id'],
+                self.data['ignore_flags'],
+                self.data['time_week_ms'],
+                self.data['time_week'],
+                self.data['fix_type'],
+                self.data['lat']*1E7,
+                self.data['lon']*1E7,
+                self.data['alt'],
+                self.data['hdop'],
+                self.data['vdop'],
+                self.data['vn'],
+                self.data['ve'],
+                self.data['vd'],
+                self.data['speed_accuracy'],
+                self.data['horiz_accuracy'],
+                self.data['vert_accuracy'],
+                self.data['satellites_visible'])
+        
+        except Exception,e:
+            print "GPS Input Failed:", e
+
 
     def cmd_port(self, args):
         'handle port selection'

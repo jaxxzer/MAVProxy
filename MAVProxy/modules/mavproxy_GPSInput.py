@@ -27,7 +27,7 @@ class GPSInputModule(mp_module.MPModule):
         self.data = {
             'time_usec' : 0,                        # (uint64_t) Timestamp (micros since boot or Unix epoch)
             'gps_id' : 0,                           # (uint8_t) ID of the GPS for multiple GPS inputs
-            'ignore_flags' : 0,  # (uint16_t) Flags indicating which fields to ignore (see GPS_INPUT_IGNORE_FLAGS enum). All other fields must be provided.
+            'ignore_flags' : self.IGNORE_FLAG_ALL,  # (uint16_t) Flags indicating which fields to ignore (see GPS_INPUT_IGNORE_FLAGS enum). All other fields must be provided.
             'time_week_ms' : 0,                     # (uint32_t) GPS time (milliseconds from start of GPS week)
             'time_week' : 0,                        # (uint16_t) GPS week number
             'fix_type' : 3,                         # (uint8_t) 0-1: no fix, 2: 2D fix, 3: 3D fix. 4: 3D with DGPS. 5: 3D with RTK
@@ -58,8 +58,6 @@ class GPSInputModule(mp_module.MPModule):
     def idle_task(self):
         '''called in idle time'''
         
-        
-        
         try:
             datagram = self.port.recvfrom(self.BUFFER_SIZE)
             data = json.loads(datagram[0])
@@ -72,7 +70,7 @@ class GPSInputModule(mp_module.MPModule):
         for key in data.keys():
             self.data[key] = data[key]
         
-        print "sending gps..."
+#         print "sending gps..."
         
         try:
             self.last_message_ms = time.time()

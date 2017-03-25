@@ -33,7 +33,7 @@ class GCSPositionModule(mp_module.MPModule):
             'time_boot_ms' : 0, # Timestamp (milliseconds since system boot) (uint32_t)
             'roll' : 0,         # Roll angle (rad, -pi..+pi) (float)
             'pitch' : 0,        # Pitch angle (rad, -pi..+pi) (float)
-            'yaw' : 0,          # Yaw angle (rad, -pi..+pi) (float)
+            'heading' : 0,          # Yaw angle (rad, -pi..+pi) (float)
             'rollspeed' : 0,    # Roll angular speed (rad/s) (float)
             'pitchspeed' : 0,   # Pitch angular speed (rad/s) (float)
             'yawspeed' : 0      # Yaw angular speed (rad/s) (float)
@@ -95,7 +95,7 @@ class GCSPositionModule(mp_module.MPModule):
                 self.data['time_boot_ms'], 
                 self.data['roll'],
                 self.data['pitch'],
-                self.data['yaw'],
+                self.data['heading'],
                 self.data['rollspeed'],
                 self.data['pitchspeed'],
                 self.data['yawspeed']
@@ -119,6 +119,14 @@ class GCSPositionModule(mp_module.MPModule):
         mavutil.set_close_on_exec(self.port.fileno())
         print "Listening for GCS position packets on UDP://%s:%s" % (self.ip, self.portnum)
 
+    def rad_to_deg(self, rad):
+        if (rad >= 0):
+            deg = rad * 180/3.141593
+        else:
+            deg = 360 + rad * 180/3.141593
+        
+        return deg
+        
 def init(mpstate):
     '''initialise module'''
     return GCSPositionModule(mpstate)
